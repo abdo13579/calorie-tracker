@@ -70,7 +70,7 @@ Ensure you have **Node.js** (v18 or higher recommended) and **npm** installed on
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/abdo13579/calorie-tracker
    cd calorie-tracker
    ```
 
