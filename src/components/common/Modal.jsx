@@ -1,6 +1,6 @@
 import styles from "./Modal.module.css";
 
-function SimpleModal({ isOpen, onClose, title, children }) {
+function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) {
     return null;
   }
@@ -32,4 +32,4 @@ function SimpleModal({ isOpen, onClose, title, children }) {
   );
 }
 
-export default SimpleModal;
+export default Modal;

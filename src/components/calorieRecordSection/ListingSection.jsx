@@ -1,20 +1,21 @@
-import { useState } from "react";
+import { useContext } from "react";
 import styles from "./ListingSection.module.css";
 import RecordList from "./RecordList";
+import AppContext from "../../app-context.js";
 
 function ListingSection({ records }) {
-  const [selectedDate, setSelectedDate] = useState("");
+  const { selectedDate, selectedDateString, dateIsValid, updateSelectedDate } =
+    useContext(AppContext);
 
-  const filteredRecords = !selectedDate
+  const filteredRecords = !dateIsValid
     ? records
     : records.filter((record) => {
         const recordDate = new Date(record.date);
-        const selected = new Date(selectedDate);
 
         return (
-          recordDate.getFullYear() === selected.getFullYear() &&
-          recordDate.getMonth() === selected.getMonth() &&
-          recordDate.getDate() === selected.getDate()
+          recordDate.getFullYear() === selectedDate.getFullYear() &&
+          recordDate.getMonth() === selectedDate.getMonth() &&
+          recordDate.getDate() === selectedDate.getDate()
         );
       });
 
@@ -27,8 +28,8 @@ function ListingSection({ records }) {
         <input
           id="record-date"
           type="date"
-          value={selectedDate}
-          onChange={(event) => setSelectedDate(event.target.value)}
+          value={selectedDateString}
+          onChange={(event) => updateSelectedDate(event.target.value)}
           className={styles.input}
         />
       </div>
