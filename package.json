@@ -8,9 +8,12 @@
   "main": "index.js",
   "scripts": {
     "install-all": "lerna exec -- npm install",
+    "build": "npm --workspace=client run build",
+    "build:client": "npm --workspace=client run build",
     "start:client": "lerna run --scope client start --stream",
     "start:server": "lerna run --scope server start --stream",
     "start": "concurrently --kill-others \"npm run start:server\" \"npm run start:client\""
+
   },
   "keywords": [],
   "author": "",

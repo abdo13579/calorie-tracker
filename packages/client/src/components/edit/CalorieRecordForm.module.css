@@ -30,6 +30,10 @@
   flex-direction: column;
 }
 
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
 .totalCalories {
   grid-column: 1 / -1;
   display: flex;

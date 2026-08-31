@@ -12,30 +12,6 @@ export function TrackApp() {
   const [saveError, setSaveError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  async function loadRecords() {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("http://localhost:3000/records");
-      if (!response.ok) {
-        throw new Error("Failed to fetch records from the server");
-      }
-      const data = await response.json();
-      const formattedRecords = (data.result || []).map((record) => ({
-        id: record.id,
-        date: new Date(record.r_date),
-        meal: record.r_meal,
-        content: record.r_food,
-        calories: Number(record.r_cal),
-      }));
-      setRecords(formattedRecords);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function saveRecord(record) {
     setIsSaving(true);
     setSaveError(null);
@@ -79,7 +55,43 @@ export function TrackApp() {
   }
 
   useEffect(() => {
-    loadRecords();
+    let ignore = false;
+
+    async function fetchRecords() {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch("http://localhost:3000/records");
+        if (!response.ok) {
+          throw new Error("Failed to fetch records from the server");
+        }
+        const data = await response.json();
+        if (!ignore) {
+          const formattedRecords = (data.result || []).map((record) => ({
+            id: record.id,
+            date: new Date(record.r_date),
+            meal: record.r_meal,
+            content: record.r_food,
+            calories: Number(record.r_cal),
+          }));
+          setRecords(formattedRecords);
+        }
+      } catch (err) {
+        if (!ignore) {
+          setError(err.message);
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchRecords();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleOpenForm = () => {
@@ -119,7 +131,7 @@ export function TrackApp() {
             Failed to save record: {saveError}
           </p>
         )}
-        <CalorieRecordForm onFormSubmit={saveRecord} />
+        <CalorieRecordForm onFormSubmit={saveRecord} isSaving={isSaving} />
       </Modal>
 
       {records && (
