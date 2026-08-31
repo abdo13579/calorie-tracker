@@ -23,6 +23,7 @@ A modern, fast, and responsive full-stack calorie tracking application built wit
 ## 🛠️ Tech Stack
 
 ### Frontend (`packages/client`)
+
 - **Framework:** [React 19](https://react.dev/)
 - **Routing:** [React Router v7](https://reactrouter.com/)
 - **Build Tool:** [Vite 8](https://vite.dev/)
@@ -32,6 +33,7 @@ A modern, fast, and responsive full-stack calorie tracking application built wit
 - **API Integration:** [USDA FoodData Central API](https://fdc.nal.usda.gov/)
 
 ### Backend (`packages/server`)
+
 - **Server:** [Express](https://expressjs.com/)
 - **Database:** [SQLite3](https://www.sqlite.org/) (configurable in-memory `:memory:` or file-based persistence via `DB_PATH`)
 - **CORS & Middleware:** `cors`, `body-parser`, `dotenv`
@@ -119,11 +121,13 @@ npm run install-all
 The application works out-of-the-box using USDA's public `DEMO_KEY` and automatic `localStorage` fallback. To configure custom keys or a custom backend URL:
 
 #### Frontend (`packages/client/.env`)
+
 1. Copy the example file in `packages/client`:
    ```bash
    cp packages/client/.env.example packages/client/.env
    ```
 2. Configure optional environment variables:
+
    ```env
    # Optional: Free USDA API Key (from https://fdc.nal.usda.gov/api-key-signup.html)
    VITE_USDA_API_KEY=your_actual_usda_api_key_here
@@ -133,6 +137,7 @@ The application works out-of-the-box using USDA's public `DEMO_KEY` and automati
    ```
 
 #### Backend (`packages/server/.env`)
+
 ```env
 PORT=3000
 DOMAIN_WHITELIST=["http://localhost:5173"]
@@ -172,25 +177,25 @@ The client is optimized for static hosting on **Cloudflare Pages**:
 
 ## 🔌 API Reference (Backend)
 
-| Method | Endpoint | Description | Payload / Query |
-|---|---|---|---|
-| `GET` | `/records` | List all records | Optional `?date=YYYY-MM-DD` |
-| `GET` | `/records/:id` | Get details of a single record | N/A |
-| `POST` | `/records` | Create a new food record | `{ r_date, r_meal, r_food, r_cal }` |
-| `PUT` | `/records/:id` | Update an existing record | `{ r_date, r_meal, r_food, r_cal }` |
-| `DELETE` | `/records/:id` | Delete a record by ID | N/A |
+| Method   | Endpoint       | Description                    | Payload / Query                     |
+| -------- | -------------- | ------------------------------ | ----------------------------------- |
+| `GET`    | `/records`     | List all records               | Optional `?date=YYYY-MM-DD`         |
+| `GET`    | `/records/:id` | Get details of a single record | N/A                                 |
+| `POST`   | `/records`     | Create a new food record       | `{ r_date, r_meal, r_food, r_cal }` |
+| `PUT`    | `/records/:id` | Update an existing record      | `{ r_date, r_meal, r_food, r_cal }` |
+| `DELETE` | `/records/:id` | Delete a record by ID          | N/A                                 |
 
 ---
 
 ## 📜 Available Scripts
 
-| Command | Description |
-|---|---|
-| `npm start` | Runs both client and server concurrently using `concurrently` |
-| `npm run start:client` | Starts the Vite development server for the client package |
-| `npm run start:server` | Starts the Express backend server with SQLite |
-| `npm run build` | Builds the client application for production (`packages/client/dist`) |
-| `npm run install-all` | Installs dependencies across all workspace packages via Lerna |
+| Command                | Description                                                           |
+| ---------------------- | --------------------------------------------------------------------- |
+| `npm start`            | Runs both client and server concurrently using `concurrently`         |
+| `npm run start:client` | Starts the Vite development server for the client package             |
+| `npm run start:server` | Starts the Express backend server with SQLite                         |
+| `npm run build`        | Builds the client application for production (`packages/client/dist`) |
+| `npm run install-all`  | Installs dependencies across all workspace packages via Lerna         |
 
 ---
 
