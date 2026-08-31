@@ -73,7 +73,6 @@ export function TrackApp() {
     };
   }, []);
 
-
   const handleOpenForm = () => {
     setSaveError(null);
     setIsFormOpen(true);
@@ -115,7 +114,6 @@ export function TrackApp() {
           onFormSubmit={handleSaveRecord}
           isSaving={isSaving}
         />
-
       </Modal>
 
       {records && (

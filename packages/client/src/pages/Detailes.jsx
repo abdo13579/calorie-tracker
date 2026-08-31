@@ -40,7 +40,6 @@ export function Detailes() {
     };
   }, [idrecord]);
 
-
   if (isLoading) {
     return <p className={styles.loading}>Loading record details...</p>;
   }
