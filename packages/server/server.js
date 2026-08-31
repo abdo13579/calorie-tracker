@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3").verbose();
@@ -9,11 +10,13 @@ const generateRecords = require("./data-generator");
 app.use(bodyParser.json());
 
 // Database setup in memory
-const db = new sqlite3.Database(":memory:", (err) => {
+// Database path: defaults to in-memory. Set DB_PATH env var for file-based persistence.
+const dbPath = process.env.DB_PATH || ":memory:";
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     return console.error(err.message);
   }
-  console.log("Connected to the in-memory SQlite database.");
+  console.log(`Connected to SQLite database (${dbPath === ":memory:" ? "in-memory" : dbPath}).`);
 });
 
 // Create table and populate with initial data
@@ -44,8 +47,14 @@ const setupDb = () => {
 
 setupDb();
 
-const domainWhiteList = JSON.parse(process.env.DOMAIN_WHITELIST);
-console.log(domainWhiteList);
+let domainWhiteList;
+try {
+  domainWhiteList = JSON.parse(process.env.DOMAIN_WHITELIST || '[]');
+} catch (err) {
+  console.warn('Invalid DOMAIN_WHITELIST env var, defaulting to allow all localhost origins');
+  domainWhiteList = ['http://localhost:5173', 'http://localhost:3000'];
+}
+console.log('CORS whitelist:', domainWhiteList);
 
 // Allow receiving requests from React server
 const corsOptions = {
@@ -130,9 +139,22 @@ app.post("/records", (req, res) => {
   console.log("Received 'Create' request");
   const { r_date, r_meal, r_food, r_cal } = req.body;
 
-  // Simple validation
-  if (!r_date || !r_meal || !r_food || !r_cal) {
-    return res.status(400).send("Please provide all record fields.");
+  // Input validation
+  if (!r_date || !r_meal || !r_food || r_cal == null) {
+    return res.status(400).json({ error: "Please provide all record fields: r_date, r_meal, r_food, r_cal." });
+  }
+  if (typeof r_cal !== 'number' || !Number.isFinite(r_cal) || r_cal < 0) {
+    return res.status(400).json({ error: "r_cal must be a non-negative finite number." });
+  }
+  const validMeals = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'breakfast', 'lunch', 'dinner', 'snack'];
+  if (!validMeals.includes(r_meal)) {
+    return res.status(400).json({ error: `r_meal must be one of: ${validMeals.join(', ')}` });
+  }
+  if (typeof r_date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(r_date)) {
+    return res.status(400).json({ error: "r_date must be a string in YYYY-MM-DD format." });
+  }
+  if (typeof r_food !== 'string' || r_food.length > 500) {
+    return res.status(400).json({ error: "r_food must be a string with max 500 characters." });
   }
 
   let sql =
@@ -158,9 +180,22 @@ app.put("/records/:id", (req, res) => {
   const { r_date, r_meal, r_food, r_cal } = req.body;
   const { id } = req.params;
 
-  // Simple validation
-  if (!r_date || !r_meal || !r_food || !r_cal) {
-    return res.status(400).send("Please provide all record fields.");
+  // Input validation
+  if (!r_date || !r_meal || !r_food || r_cal == null) {
+    return res.status(400).json({ error: "Please provide all record fields: r_date, r_meal, r_food, r_cal." });
+  }
+  if (typeof r_cal !== 'number' || !Number.isFinite(r_cal) || r_cal < 0) {
+    return res.status(400).json({ error: "r_cal must be a non-negative finite number." });
+  }
+  const validMeals = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'breakfast', 'lunch', 'dinner', 'snack'];
+  if (!validMeals.includes(r_meal)) {
+    return res.status(400).json({ error: `r_meal must be one of: ${validMeals.join(', ')}` });
+  }
+  if (typeof r_date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(r_date)) {
+    return res.status(400).json({ error: "r_date must be a string in YYYY-MM-DD format." });
+  }
+  if (typeof r_food !== 'string' || r_food.length > 500) {
+    return res.status(400).json({ error: "r_food must be a string with max 500 characters." });
   }
 
   let sql = "SELECT * FROM calorie_records WHERE id = ?";
@@ -207,4 +242,10 @@ app.delete("/records/:id", (req, res) => {
       res.status(404).send("Record not found");
     }
   });
+});
+
+// Global error handler — catches CORS errors and other unhandled errors
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.message);
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });

@@ -3,7 +3,7 @@ import styles from "./ListingSection.module.css";
 import RecordList from "./RecordList";
 import AppContext from "../../app-context.js";
 
-function ListingSection({ records, isLoading, error }) {
+function ListingSection({ records, isLoading, error, onDeleteRecord }) {
   const { selectedDate, selectedDateString, dateIsValid, updateSelectedDate } =
     useContext(AppContext);
 
@@ -41,7 +41,7 @@ function ListingSection({ records, isLoading, error }) {
       ) : filteredRecords.length === 0 ? (
         <p className={styles.emptyMessage}>No records for this date.</p>
       ) : (
-        <RecordList records={filteredRecords} />
+        <RecordList records={filteredRecords} onDeleteRecord={onDeleteRecord} />
       )}
     </section>
   );

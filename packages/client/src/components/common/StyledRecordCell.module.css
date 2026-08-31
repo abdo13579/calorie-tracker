@@ -1,4 +1,4 @@
-.styled-record-cell {
+.cell {
   background: rgba(0, 212, 255, 0.06);
   border: 1px solid rgba(0, 212, 255, 0.3);
   border-radius: 8px;
@@ -11,7 +11,7 @@
   transition: all 0.25s ease;
 }
 
-.styled-record-cell:hover {
+.cell:hover {
   border-color: var(--accent-teal);
   background: rgba(0, 212, 255, 0.12);
   box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);

@@ -2,6 +2,7 @@ import { useReducer, useContext, useRef, useEffect } from "react";
 import styles from "./CalorieRecordForm.module.css";
 import AppContext from "../../app-context.js";
 import FormInput from "../common/FormInput.jsx";
+import MealSelect from "../common/MealSelect.jsx";
 import FoodAutocomplete from "./FoodAutocomplete.jsx";
 
 const DEFAULT_RECORDS = {
@@ -113,12 +114,9 @@ function CaloriesRecordForm(props) {
     contentInputRef.current?.focus();
   }, []);
 
-  const content = (formState.content.value || "").trim().toLowerCase();
   const calories = Number(formState.calories.value);
   const caloriesAreValid =
-    formState.calories.value !== "" &&
-    !isNaN(calories) &&
-    (content === "sports" ? calories < 0 : calories > 0);
+    formState.calories.value !== "" && !isNaN(calories) && calories > 0;
 
   const grams = Number(formState.grams.value);
   const gramsAreValid =
@@ -211,8 +209,7 @@ function CaloriesRecordForm(props) {
         onChange={handleDateChange}
         hasError={dateHasError}
       />
-      <FormInput
-        id="meal"
+      <MealSelect
         value={formState.meal.value}
         onChange={handleMealChange}
         hasError={mealHasError}

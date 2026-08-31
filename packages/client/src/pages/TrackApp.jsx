@@ -1,15 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useContext } from "react";
 import ListingSection from "../components/calorieRecordSection/ListingSection.jsx";
 import Modal from "../components/common/Modal.jsx";
 import CalorieRecordForm from "../components/edit/CalorieRecordForm.jsx";
-import { fetchRecords, createRecord } from "../services/recordsApi.js";
+import AppContext from "../app-context.js";
 import styles from "./TrackApp.module.css";
 
 export function TrackApp() {
-  const [records, setRecords] = useState([]);
+  const { addRecord, removeRecord, records, isLoading, error } =
+    useContext(AppContext);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [saveError, setSaveError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -17,16 +16,7 @@ export function TrackApp() {
     setIsSaving(true);
     setSaveError(null);
     try {
-      const data = await createRecord(record);
-      const normalizedRecord = {
-        id: data.id,
-        date: new Date(`${record.date}T00:00:00`),
-        meal: record.meal,
-        content: record.content,
-        calories: Number(record.calories),
-      };
-
-      setRecords((prevRecords) => [...prevRecords, normalizedRecord]);
+      await addRecord(record);
       setIsFormOpen(false);
       setSaveError(null);
     } catch (err) {
@@ -37,41 +27,13 @@ export function TrackApp() {
     }
   }
 
-  useEffect(() => {
-    let ignore = false;
-
-    async function loadData() {
-      setLoading(true);
-      setError(null);
-      try {
-        const rawRecords = await fetchRecords();
-        if (!ignore) {
-          const formattedRecords = (rawRecords || []).map((record) => ({
-            id: record.id,
-            date: new Date(record.r_date),
-            meal: record.r_meal,
-            content: record.r_food,
-            calories: Number(record.r_cal),
-          }));
-          setRecords(formattedRecords);
-        }
-      } catch (err) {
-        if (!ignore) {
-          setError(err.message);
-        }
-      } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
-      }
+  async function handleDeleteRecord(id) {
+    try {
+      await removeRecord(id);
+    } catch (err) {
+      console.error("Error deleting record:", err);
     }
-
-    loadData();
-
-    return () => {
-      ignore = true;
-    };
-  }, []);
+  }
 
   const handleOpenForm = () => {
     setSaveError(null);
@@ -116,10 +78,6 @@ export function TrackApp() {
         />
       </Modal>
 
-      {records && (
-        <ListingSection records={records} isLoading={loading} error={error} />
-      )}
-
       <div className={styles.toolbar}>
         <button
           type="button"
@@ -129,6 +87,15 @@ export function TrackApp() {
           + Add Food
         </button>
       </div>
+
+      {records && (
+        <ListingSection
+          records={records}
+          isLoading={isLoading}
+          error={error}
+          onDeleteRecord={handleDeleteRecord}
+        />
+      )}
     </div>
   );
 }

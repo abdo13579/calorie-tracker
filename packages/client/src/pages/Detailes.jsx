@@ -1,13 +1,17 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { fetchRecordById } from "../services/recordsApi.js";
+import AppContext from "../app-context.js";
 import styles from "./Detailes.module.css";
 
 export function Detailes() {
   const { idrecord } = useParams();
+  const navigate = useNavigate();
+  const { records, removeRecord } = useContext(AppContext);
   const [record, setRecord] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -15,6 +19,30 @@ export function Detailes() {
     async function loadRecordDetails() {
       setIsLoading(true);
       setError(null);
+
+      // Try to find the record in the context first
+      const contextRecord = records.find(
+        (r) => String(r.id) === String(idrecord),
+      );
+      if (contextRecord) {
+        if (!ignore) {
+          setRecord({
+            id: contextRecord.id,
+            r_food: contextRecord.content,
+            r_meal: contextRecord.meal,
+            r_cal: contextRecord.calories,
+            r_date:
+              contextRecord.date instanceof Date &&
+              !Number.isNaN(contextRecord.date.getTime())
+                ? `${contextRecord.date.getFullYear()}-${String(contextRecord.date.getMonth() + 1).padStart(2, "0")}-${String(contextRecord.date.getDate()).padStart(2, "0")}`
+                : "Unknown",
+          });
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      // Fall back to API
       try {
         const data = await fetchRecordById(idrecord);
         if (!ignore) {
@@ -33,12 +61,26 @@ export function Detailes() {
 
     if (idrecord) {
       loadRecordDetails();
+    } else {
+      setIsLoading(false);
+      setError("No record ID provided.");
     }
 
     return () => {
       ignore = true;
     };
-  }, [idrecord]);
+  }, [idrecord, records]);
+
+  async function handleDelete() {
+    setIsDeleting(true);
+    try {
+      await removeRecord(idrecord);
+      navigate("/tracker");
+    } catch (err) {
+      setError(err.message);
+      setIsDeleting(false);
+    }
+  }
 
   if (isLoading) {
     return <p className={styles.loading}>Loading record details...</p>;
@@ -62,9 +104,19 @@ export function Detailes() {
       <div className={styles.detailsCard}>
         <div className={styles.header}>
           <h1 className={styles.foodTitle}>{record.r_food}</h1>
-          <Link to="/tracker" className={styles.backLink}>
-            ← Back to Tracker
-          </Link>
+          <div className={styles.headerActions}>
+            <button
+              type="button"
+              onClick={handleDelete}
+              className={styles.deleteBtn}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Record"}
+            </button>
+            <Link to="/tracker" className={styles.backLink}>
+              ← Back to Tracker
+            </Link>
+          </div>
         </div>
 
         <div className={styles.detailsTable}>

@@ -65,6 +65,9 @@ export async function fetchRecords(dateQuery) {
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
+        if (data.result && !dateQuery) {
+          saveStoredRecords(data.result);
+        }
         return data.result || [];
       }
     } catch (err) {
@@ -119,7 +122,20 @@ export async function createRecord(record) {
         }),
       });
       if (response.ok) {
-        return await response.json();
+        const data = await response.json();
+        const records = getStoredRecords();
+        const createdItem = {
+          id: data.id,
+          r_date: record.date,
+          r_meal: record.meal,
+          r_food: record.content,
+          r_cal: Number(record.calories),
+        };
+        if (!records.some((r) => String(r.id) === String(data.id))) {
+          records.push(createdItem);
+          saveStoredRecords(records);
+        }
+        return data;
       }
     } catch (err) {
       console.warn(
@@ -144,4 +160,82 @@ export async function createRecord(record) {
   records.push(newRecord);
   saveStoredRecords(records);
   return { message: "Record inserted.", id: newId };
+}
+
+export async function deleteRecord(id) {
+  if (API_BASE_URL) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/records/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        const records = getStoredRecords().filter(
+          (r) => String(r.id) !== String(id),
+        );
+        saveStoredRecords(records);
+        return await response.json();
+      }
+    } catch (err) {
+      console.warn(
+        "Backend API unavailable, falling back to local storage:",
+        err.message,
+      );
+    }
+  }
+
+  const records = getStoredRecords().filter((r) => String(r.id) !== String(id));
+  saveStoredRecords(records);
+  return { message: "Record deleted.", id };
+}
+
+export async function updateRecord(id, record) {
+  if (API_BASE_URL) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/records/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          r_date: record.date,
+          r_meal: record.meal,
+          r_food: record.content,
+          r_cal: Number(record.calories),
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const records = getStoredRecords().map((r) =>
+          String(r.id) === String(id)
+            ? {
+                ...r,
+                r_date: record.date,
+                r_meal: record.meal,
+                r_food: record.content,
+                r_cal: Number(record.calories),
+              }
+            : r,
+        );
+        saveStoredRecords(records);
+        return data;
+      }
+    } catch (err) {
+      console.warn(
+        "Backend API unavailable, falling back to local storage:",
+        err.message,
+      );
+    }
+  }
+
+  const records = getStoredRecords().map((r) =>
+    String(r.id) === String(id)
+      ? {
+          ...r,
+          r_date: record.date,
+          r_meal: record.meal,
+          r_food: record.content,
+          r_cal: Number(record.calories),
+        }
+      : r,
+  );
+  saveStoredRecords(records);
+  return { message: "Record updated.", id };
 }

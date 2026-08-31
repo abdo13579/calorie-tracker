@@ -1,3 +1,7 @@
+// NOTE: The USDA FoodData Central API key is intentionally client-side.
+// This is a free, public API with no sensitive data. The key is rate-limited
+// by USDA and can be obtained freely at https://fdc.nal.usda.gov/api-key-signup.html
+// In production on Cloudflare Pages, there is no backend to proxy through.
 const API_KEY = import.meta.env.VITE_USDA_API_KEY || "DEMO_KEY";
 const BASE_URL = "https://api.nal.usda.gov/fdc/v1/foods/search";
 

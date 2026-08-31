@@ -1,7 +1,7 @@
-import "./StyledRecordCell.css";
+import styles from "./StyledRecordCell.module.css";
 
 function StyledRecordCell(props) {
-  return <div className="styled-record-cell">{props.children}</div>;
+  return <div className={styles.cell}>{props.children}</div>;
 }
 
 export default StyledRecordCell;

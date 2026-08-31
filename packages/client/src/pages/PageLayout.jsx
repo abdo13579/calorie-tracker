@@ -2,6 +2,7 @@ import SideBar from "../components/common/SideNav";
 import { Outlet } from "react-router-dom";
 import styles from "./PageLayout.module.css";
 import AppContextProvider from "../AppContext";
+import ErrorBoundary from "../components/common/ErrorBoundary";
 
 export function PageLayout() {
   return (
@@ -9,7 +10,9 @@ export function PageLayout() {
       <div className={styles.layout}>
         <SideBar />
         <main className={styles.content}>
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </AppContextProvider>

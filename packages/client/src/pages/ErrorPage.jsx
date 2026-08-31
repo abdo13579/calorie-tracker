@@ -6,22 +6,26 @@ const HOME_DIR = "/";
 
 export function ErrorPage() {
   const [counter, setCounter] = useState(10);
-  const interval = useRef();
-  const homeNavigate = useNavigate();
+  const navigate = useNavigate();
+  const hasNavigated = useRef(false);
 
   useEffect(() => {
-    if (counter === 0) {
-      clearInterval(interval.current);
-      homeNavigate(HOME_DIR);
-    }
-  }, [counter, homeNavigate]);
+    const interval = setInterval(() => {
+      setCounter((prev) => {
+        const next = prev - 1;
+        if (next <= 0 && !hasNavigated.current) {
+          hasNavigated.current = true;
+          clearInterval(interval);
+          // Navigate on next tick to avoid state update during render
+          setTimeout(() => navigate(HOME_DIR), 0);
+          return 0;
+        }
+        return next;
+      });
+    }, 1000);
 
-  useEffect(() => {
-    interval.current = setInterval(() => setCounter((prev) => prev - 1), 1000);
-    return () => {
-      clearInterval(interval.current);
-    };
-  }, []);
+    return () => clearInterval(interval);
+  }, [navigate]);
 
   return (
     <div className={styles.container}>

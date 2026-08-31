@@ -6,7 +6,13 @@ const AppContext = createContext({
   dateIsValid: false,
   updateSelectedDate: () => {},
   totalCalories: 0,
-  setTotalCalories: () => {},
+  records: [],
+  filteredRecords: [],
+  isLoading: false,
+  error: null,
+  loadRecords: () => {},
+  addRecord: async () => {},
+  removeRecord: async () => {},
 });
 
 export default AppContext;

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import styles from "./CalorieRecord.module.css";
 import CalorieRecordDate from "./CalorieRecordDate";
 
@@ -7,27 +8,33 @@ const MEAL_BADGES = {
   Lunch: { icon: "☀️", className: styles.badgeLunch },
   Dinner: { icon: "🌙", className: styles.badgeDinner },
   Snack: { icon: "🍎", className: styles.badgeSnack },
+  breakfast: { icon: "🌅", className: styles.badgeBreakfast },
+  lunch: { icon: "☀️", className: styles.badgeLunch },
+  dinner: { icon: "🌙", className: styles.badgeDinner },
+  snack: { icon: "🍎", className: styles.badgeSnack },
 };
 
 function CalorieRecord(props) {
-  const { addCalories, calories } = props;
-  const [currentCalories, setCurrentCalories] = useState(Number(calories));
+  const { calories, onDelete, id, content, meal, date } = props;
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  function handleCaloriesChange(event) {
+  const handleDelete = async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    setCurrentCalories((previousCalories) => previousCalories + 10);
-  }
+    if (isDeleting) return;
 
-  useEffect(() => {
-    addCalories((previousTotal) => previousTotal + Number(calories));
+    setIsDeleting(true);
+    try {
+      if (onDelete) {
+        await onDelete(id);
+      }
+    } catch (err) {
+      console.error("Failed to delete record:", err);
+      setIsDeleting(false);
+    }
+  };
 
-    return () => {
-      addCalories((previousTotal) => previousTotal - Number(calories));
-    };
-  }, [addCalories, calories]);
-
-  const mealInfo = MEAL_BADGES[props.meal] || {
+  const mealInfo = MEAL_BADGES[meal] || {
     icon: "🍽️",
     className: styles.badgeDefault,
   };
@@ -35,31 +42,31 @@ function CalorieRecord(props) {
   return (
     <div className={styles.recordRow}>
       <div className={styles.dateCell}>
-        <CalorieRecordDate date={props.date} />
+        <CalorieRecordDate date={date} />
       </div>
 
       <div className={styles.mealCell}>
         <span className={`${styles.mealBadge} ${mealInfo.className}`}>
           <span className={styles.badgeIcon}>{mealInfo.icon}</span>
-          {props.meal}
+          {meal}
         </span>
       </div>
 
       <div className={styles.foodCell}>
-        <span className={styles.foodName}>{props.content}</span>
+        <span className={styles.foodName}>{content}</span>
       </div>
 
-      <div
-        className={styles.caloriesCell}
-        onClick={handleCaloriesChange}
-        title="Click to add +10 kcal"
-      >
-        <span className={styles.caloriesValue}>{currentCalories}</span>
+      <div className={styles.caloriesCell}>
+        <span className={styles.caloriesValue}>{calories}</span>
         <span className={styles.caloriesUnit}>kcal</span>
       </div>
 
       <div className={styles.actionCell}>
-        <span className={styles.detailsBtn}>
+        <Link
+          to={`${id}`}
+          className={styles.detailsBtn}
+          aria-label={`View details for ${content}`}
+        >
           Details
           <svg
             width="14"
@@ -73,7 +80,31 @@ function CalorieRecord(props) {
           >
             <polyline points="9 18 15 12 9 6" />
           </svg>
-        </span>
+        </Link>
+        <button
+          type="button"
+          onClick={handleDelete}
+          className={styles.deleteBtn}
+          disabled={isDeleting}
+          title="Delete record"
+          aria-label={`Delete record for ${content}`}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <line x1="10" y1="11" x2="10" y2="17" />
+            <line x1="14" y1="11" x2="14" y2="17" />
+          </svg>
+        </button>
       </div>
     </div>
   );
