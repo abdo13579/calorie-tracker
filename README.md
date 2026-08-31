@@ -9,6 +9,7 @@ A modern, fast, and responsive full-stack calorie tracking application built wit
 - **🔍 Live USDA Food Search & Autocomplete**: Search the official USDA FoodData Central database with debounced suggestions showing food descriptions, brands, and calorie density per 100g.
 - **⚖️ Automatic Grams-Based Calorie Calculation**: Enter weight in grams (defaults to 100g) to automatically compute total calories (`kcal/100g × grams ÷ 100`).
 - **✏️ Manual Calorie Fallback & Overrides**: If a custom food isn't in the database or requires custom calories, the calorie field remains open and fully editable at all times.
+- **💾 Dual Data Strategy (Backend + LocalStorage)**: Automatically syncs with the Express backend if available, or seamlessly falls back to browser `localStorage` when deployed standalone (e.g. on Cloudflare Pages) or offline.
 - **📝 Meal Logging**: Log meals categorized as Breakfast, Lunch, Dinner, or Snack with custom dates and descriptions.
 - **📅 Date-Based Filtering & Daily Summaries**: Filter logged records by specific date to monitor daily calorie consumption and track progress.
 - **⚡ Quick Calorie Adjustments**: Click directly on calorie badges within records to increment counts quickly.
@@ -41,7 +42,8 @@ A modern, fast, and responsive full-stack calorie tracking application built wit
 calorie-tracker/
 ├── packages/
 │   ├── client/                          # React frontend
-│   │   ├── public/                      # Static assets
+│   │   ├── public/
+│   │   │   └── _redirects               # SPA routing fallback for Cloudflare Pages
 │   │   ├── src/
 │   │   │   ├── components/
 │   │   │   │   ├── calorieRecordSection/ # Record listing & date filter components
@@ -52,10 +54,12 @@ calorie-tracker/
 │   │   │   │       └── FoodAutocomplete.module.css
 │   │   │   ├── pages/                   # TrackApp, Details, Landing, Error pages
 │   │   │   ├── services/
+│   │   │   │   ├── recordsApi.js        # Records API client & localStorage fallback
 │   │   │   │   └── usdaApi.js           # USDA API client & nutrient parsers
 │   │   │   ├── AppContext.jsx           # Global state context
 │   │   │   └── main.jsx                 # Client entry point
 │   │   ├── .env.example                 # Example frontend environment variables
+│   │   ├── .gitignore                   # Client-level gitignore
 │   │   ├── package.json
 │   │   └── vite.config.js
 │   │
@@ -91,15 +95,19 @@ npm run install-all
 
 ### 2. Environment Setup (Optional)
 
-The application works out-of-the-box using USDA's public `DEMO_KEY`. To avoid demo rate limits, obtain a free API key at [USDA FoodData Central](https://fdc.nal.usda.gov/api-key-signup.html) and configure it:
+The application works out-of-the-box using USDA's public `DEMO_KEY` and automatic `localStorage` fallback. To configure custom keys or a custom backend URL:
 
 1. Copy the example file in `packages/client`:
    ```bash
    cp packages/client/.env.example packages/client/.env
    ```
-2. Open `packages/client/.env` and insert your key:
+2. Set your environment variables in `packages/client/.env`:
    ```env
+   # Optional: Free USDA API Key (from https://fdc.nal.usda.gov/api-key-signup.html)
    VITE_USDA_API_KEY=your_actual_usda_api_key_here
+
+   # Optional: Custom Backend API URL (falls back to localStorage if empty or offline)
+   VITE_API_URL=https://your-backend-api.com
    ```
 
 ### 3. Running Locally
@@ -112,6 +120,19 @@ npm start
 
 - **Frontend:** `http://localhost:5173`
 - **Backend API:** `http://localhost:3000`
+
+---
+
+## ☁️ Deployment on Cloudflare Pages
+
+1. In the [Cloudflare Dashboard](https://dash.cloudflare.com/), navigate to **Workers & Pages** &rarr; **Create application** &rarr; **Pages** &rarr; **Connect to Git**.
+2. Select your repository (`calorie-tracker`).
+3. Set the build configuration:
+   - **Framework preset:** `Vite` (or `None`)
+   - **Build command:** `npm run build`
+   - **Build output directory:** `packages/client/dist`
+   - **Environment variables (Optional):** Add `VITE_USDA_API_KEY` or `VITE_API_URL`
+4. Click **Save and Deploy**. Cloudflare will deploy your application with full client-side routing support via [`_redirects`](file:///home/abdoalhythm/Documents/Projects/advanced%20react/calorie-tracker/packages/client/public/_redirects).
 
 ---
 
