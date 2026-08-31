@@ -1,0 +1,74 @@
+.container {
+  max-width: 680px;
+  margin: 40px auto;
+  padding: 48px 36px;
+  background: linear-gradient(160deg, #1d2535 0%, var(--secondary-dark) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 520px;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--accent-teal), #00a2cc);
+  color: #0f1419;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 14px 32px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.25);
+  margin-top: 8px;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
+  color: #0f1419;
+  opacity: 1;
+}
+
+.ctaButton:focus-visible {
+  outline: 3px solid var(--accent-teal);
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 32px 20px;
+    margin: 20px auto;
+  }
+
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+}

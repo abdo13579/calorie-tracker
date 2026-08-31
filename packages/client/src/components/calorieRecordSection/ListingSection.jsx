@@ -3,7 +3,7 @@ import styles from "./ListingSection.module.css";
 import RecordList from "./RecordList";
 import AppContext from "../../app-context.js";
 
-function ListingSection({ records }) {
+function ListingSection({ records, isLoading, error }) {
   const { selectedDate, selectedDateString, dateIsValid, updateSelectedDate } =
     useContext(AppContext);
 
@@ -34,7 +34,11 @@ function ListingSection({ records }) {
         />
       </div>
 
-      {filteredRecords.length === 0 ? (
+      {isLoading ? (
+        <p className={styles.emptyMessage}>Loading...</p>
+      ) : error ? (
+        <p className={styles.errorMessage}>Failed to load data: {error}</p>
+      ) : filteredRecords.length === 0 ? (
         <p className={styles.emptyMessage}>No records for this date.</p>
       ) : (
         <RecordList records={filteredRecords} />

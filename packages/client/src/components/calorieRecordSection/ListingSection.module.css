@@ -1,0 +1,56 @@
+.filterBlock {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.label {
+  display: inline-block;
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0;
+}
+
+.input {
+  width: 100%;
+  max-width: 200px;
+  background-color: var(--secondary-dark);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-teal);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+}
+
+.emptyMessage {
+  color: var(--text-secondary);
+  background-color: rgba(26, 31, 46, 0.6);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 36px 20px;
+  text-align: center;
+  font-size: 1rem;
+  margin: 16px 0;
+}
+
+.errorMessage {
+  color: #ff9166;
+  background-color: rgba(255, 107, 53, 0.1);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 16px 0;
+  font-size: 0.95rem;
+}
