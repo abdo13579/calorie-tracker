@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import ListingSection from "../components/calorieRecordSection/ListingSection.jsx";
 import Modal from "../components/common/Modal.jsx";
 import CalorieRecordForm from "../components/edit/CalorieRecordForm.jsx";
+import { fetchRecords, createRecord } from "../services/recordsApi.js";
 import styles from "./TrackApp.module.css";
 
 export function TrackApp() {
@@ -12,29 +13,11 @@ export function TrackApp() {
   const [saveError, setSaveError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  async function saveRecord(record) {
+  async function handleSaveRecord(record) {
     setIsSaving(true);
     setSaveError(null);
     try {
-      const response = await fetch("http://localhost:3000/records", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          r_date: record.date,
-          r_meal: record.meal,
-          r_food: record.content,
-          r_cal: Number(record.calories),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Failed to save record to the server");
-      }
-
-      const data = await response.json();
+      const data = await createRecord(record);
       const normalizedRecord = {
         id: data.id,
         date: new Date(`${record.date}T00:00:00`),
@@ -57,17 +40,13 @@ export function TrackApp() {
   useEffect(() => {
     let ignore = false;
 
-    async function fetchRecords() {
+    async function loadData() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch("http://localhost:3000/records");
-        if (!response.ok) {
-          throw new Error("Failed to fetch records from the server");
-        }
-        const data = await response.json();
+        const rawRecords = await fetchRecords();
         if (!ignore) {
-          const formattedRecords = (data.result || []).map((record) => ({
+          const formattedRecords = (rawRecords || []).map((record) => ({
             id: record.id,
             date: new Date(record.r_date),
             meal: record.r_meal,
@@ -87,12 +66,13 @@ export function TrackApp() {
       }
     }
 
-    fetchRecords();
+    loadData();
 
     return () => {
       ignore = true;
     };
   }, []);
+
 
   const handleOpenForm = () => {
     setSaveError(null);
@@ -131,7 +111,11 @@ export function TrackApp() {
             Failed to save record: {saveError}
           </p>
         )}
-        <CalorieRecordForm onFormSubmit={saveRecord} isSaving={isSaving} />
+        <CalorieRecordForm
+          onFormSubmit={handleSaveRecord}
+          isSaving={isSaving}
+        />
+
       </Modal>
 
       {records && (

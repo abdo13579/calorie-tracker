@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { fetchRecordById } from "../services/recordsApi.js";
 import styles from "./Detailes.module.css";
 
 export function Detailes() {
@@ -9,30 +10,36 @@ export function Detailes() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let ignore = false;
+
     async function loadRecordDetails() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:3000/records/${idrecord}`);
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error("Record not found");
-          }
-          throw new Error("Failed to load record details");
+        const data = await fetchRecordById(idrecord);
+        if (!ignore) {
+          setRecord(data);
         }
-        const data = await response.json();
-        setRecord(data);
       } catch (err) {
-        setError(err.message);
+        if (!ignore) {
+          setError(err.message);
+        }
       } finally {
-        setIsLoading(false);
+        if (!ignore) {
+          setIsLoading(false);
+        }
       }
     }
 
     if (idrecord) {
       loadRecordDetails();
     }
+
+    return () => {
+      ignore = true;
+    };
   }, [idrecord]);
+
 
   if (isLoading) {
     return <p className={styles.loading}>Loading record details...</p>;
